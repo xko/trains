@@ -25,8 +25,6 @@ class SingleTrainSpec extends AnyFunSpec with Matchers with ScalaCheckPropertyCh
     }
   }
 
-
-
   describe("with one request") {
     it("comes to pickup") {
       forAll(trains, terminals , terminals){ (tr, from, to) =>
@@ -47,6 +45,5 @@ class SingleTrainSpec extends AnyFunSpec with Matchers with ScalaCheckPropertyCh
   describe("with many requests") {
     //TODO
   }
-
 
 }
