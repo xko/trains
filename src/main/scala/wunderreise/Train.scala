@@ -4,12 +4,12 @@ import scala.collection.immutable._
 
 
 
-case class Train(position: Terminal, dropoffs: SortedSet[Terminal], pickups: Set[Request], time: Long = 0 ) {
+case class Train(position: Terminal, dropoffs: SortedSet[Terminal], pickups: Set[Pickup], time: Time = 0 ) {
   val direction: Direction = dropoffs.ordering.compare(1, -1).sign
 
   val ahead: SortedSet[Terminal] = (dropoffs ++ pickups.map(_._1)).rangeFrom(position)
 
-  def assign(pickup: Request): Train = copy(pickups = pickups + pickup)
+  def assign(pickup: Pickup): Train = copy(pickups = pickups + pickup)
 
   val isIdle: Boolean = dropoffs.isEmpty && pickups.isEmpty
 
