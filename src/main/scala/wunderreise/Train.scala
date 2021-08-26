@@ -4,28 +4,27 @@ import scala.collection.immutable._
 
 
 
-case class Train(position: Terminal, schedule: SortedSet[Terminal], queue: Set[Request], time: Long = 0 ) {
-  val direction: Direction = schedule.ordering.compare(1, -1).sign
+case class Train(position: Terminal, dropoffs: SortedSet[Terminal], pickups: Set[Request], time: Long = 0 ) {
+  val direction: Direction = dropoffs.ordering.compare(1, -1).sign
 
-  implicit class InMyDirection(t: Terminal) {
-    def before(other: Terminal): Boolean = schedule.ordering.compare(t, other) <= 0
+  val ahead: SortedSet[Terminal] = (dropoffs ++ pickups.map(_._1)).rangeFrom(position)
+
+  def assign(pickup: Request): Train = copy(pickups = pickups + pickup)
+
+  val isIdle: Boolean = dropoffs.isEmpty && pickups.isEmpty
+
+  def turn: Train = copy(dropoffs = SortedSet.empty(dropoffs.ordering.reverse) ++ dropoffs)
+
+  def board: Train = {
+    val(boarding,remaining) = pickups.partition(_._1 == position)
+    copy(dropoffs = dropoffs ++ boarding.map(_._2) - position, pickups = remaining )
   }
 
-  def assign(request: Request): Train = request match {
-    case (from,to) if position.before(from) && from.before(to) => copy(schedule = schedule + from + to)
-    case (from,_)  if position.before(from) => copy(schedule = schedule + from, queue = queue + request )
-    case _ => copy(queue = queue + request)
-  }
-
-  val isIdle: Boolean = schedule.isEmpty && queue.isEmpty
-
-  def turn: Train = queue.foldLeft {
-    copy(schedule = SortedSet.empty(schedule.ordering.reverse), queue = Set.empty)
-  } ( _ assign _ )
+  def move: Train = copy(position = position + direction, time = time +1)
 
   def next: Train = {
     if(isIdle) copy(time = time + 1)
-    else if (schedule.nonEmpty) copy(position + direction, schedule - position, queue, time + 1)
+    else if (ahead.nonEmpty) board.move
     else turn.next
   }
 
