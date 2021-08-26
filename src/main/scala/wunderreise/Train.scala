@@ -20,17 +20,20 @@ case class Train(position: Terminal, dropoffs: SortedSet[Terminal], pickups: Set
     copy(dropoffs = dropoffs ++ boarding.map(_._2) - position, pickups = remaining )
   }
 
-  def move: Train = copy(position = position + direction, time = time +1)
-
-  def next: Train = if(isIdle) copy(time = time + 1)
-                    else if (ahead.nonEmpty) board.move
+  def move: Train = if(isIdle) copy(time = time + 1)
+                    else if (ahead.nonEmpty) copy(position = position + direction, time = time +1)
                     else turn.next
+
+  def next: Train = board.move
 
   def after(steps:Int):Train = if(steps == 0) this else next.after(steps -1)
 
   def isAt(t: Terminal): Boolean = position == t
 
   def whenDoneOrAt(t: Terminal):Train = if(isIdle || isAt(t)) this else next.whenDoneOrAt(t)
+
+  def whenDone: Train = if(isIdle) this else next.whenDone
+
 }
 
 object Train {

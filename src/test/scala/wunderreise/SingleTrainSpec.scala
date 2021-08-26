@@ -42,8 +42,34 @@ class SingleTrainSpec extends AnyFunSpec with Matchers with ScalaCheckPropertyCh
     }
   }
 
-  describe("with many requests") {
-    //TODO
+  describe("with some particular requests") {
+    def route(t: Train): Seq[Terminal] = LazyList.iterate(t)(_.next).takeWhile(!_.isIdle).map(_.position)
+
+    it("starting at 4 serves 6->7,5->4") {
+      route(Train(4).assign(6, 7).assign(5, 4)) shouldEqual Seq(4, 5, 6, 7, 6, 5, 4)
+    }
+
+    it("starting at 10 serves 11->12,7->9") {
+      route(Train(10).assign(11, 12).assign(7, 9)) shouldEqual Seq(10, 11, 12, 11, 10, 9, 8, 7, 8, 9)
+    }
   }
 
+  describe("with many random requests") {
+    val pickups = for (from <- terminals; to <- terminals) yield (from, to)
+
+    it("is eventually done") {
+      forAll(trains, Gen.listOf(pickups)) { (tr, pickups) =>
+        val booked = pickups.foldLeft(tr)(_ assign _)
+        noException should be thrownBy booked.whenDone
+      }
+    }
+    it("always comes to drop-off after pickup") {
+      forAll(trains, Gen.listOf(pickups)) { (tr, pickups) =>
+        val booked = pickups.foldLeft(tr)(_ assign _)
+        for((from,to)<-pickups){
+          booked.whenDoneOrAt(from).whenDoneOrAt(to).position shouldBe to
+        }
+      }
+    }
+  }
 }
