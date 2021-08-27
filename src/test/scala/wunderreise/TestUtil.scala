@@ -10,4 +10,7 @@ trait TestUtil {
   def route(t: Train): Seq[Terminal] =
     LazyList.iterate(t)(_.next).takeWhile(!_.isIdle).map(_.position)
 
+  def routes(s:Scheduler): Seq[Seq[Terminal]] =
+    LazyList.iterate(s)(_.next).takeWhile(!_.isIdle).map(_.trains.map(_.position)).transpose
+
 }
