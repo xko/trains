@@ -28,9 +28,7 @@ case class Train(position: Terminal, dropoffs: SortedSet[Terminal], pickups: Set
 
   def after(steps:Int):Train = if(steps == 0) this else next.after(steps -1)
 
-  def isAt(t: Terminal): Boolean = position == t
-
-  def whenDoneOrAt(t: Terminal):Train = if(isIdle || isAt(t)) this else next.whenDoneOrAt(t)
+  def whenDoneOrAt(t: Terminal):Train = if(isIdle || position == t) this else next.whenDoneOrAt(t)
 
   def whenDone: Train = if(isIdle) this else next.whenDone
 

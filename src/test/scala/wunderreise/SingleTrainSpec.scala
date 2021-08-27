@@ -26,7 +26,7 @@ class SingleTrainSpec extends AnyFunSpec with Matchers with ScalaCheckPropertyCh
   describe("with one request") {
     it("comes to pickup") {
       forAll(trains, terminals , terminals){ (tr, from, to) =>
-        tr.assign((from, to)).whenDoneOrAt(from).isAt(from) shouldBe true
+        tr.assign((from, to)).whenDoneOrAt(from).position shouldBe from
       }
     }
     it("comes to drop-off after pickup") {
@@ -34,7 +34,7 @@ class SingleTrainSpec extends AnyFunSpec with Matchers with ScalaCheckPropertyCh
         val atStart = tr.assign((from, to))
         val atPickup = atStart.whenDoneOrAt(from)
         val atDropOff = atPickup.whenDoneOrAt(to)
-        atDropOff.isAt(to) shouldBe true
+        atDropOff.position shouldBe to
         atDropOff.time should be >= atPickup.time
       }
     }
