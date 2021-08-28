@@ -17,8 +17,8 @@ case class Scheduler(trains: IndexedSeq[Train], unassigned: Set[Pickup] = Set.em
   @tailrec private
   def rescheduleR:Scheduler = {
     if(unassigned.isEmpty) this else {
-      val (worstPickup, bestTrainForWorstPickup, _) = unassigned.map(bestEstimate).maxBy(_._3)
-      assign(bestTrainForWorstPickup, worstPickup).rescheduleR
+      val (bestPickup, bestTrain, _) = unassigned.map(bestEstimate).minBy(_._3)
+      assign(bestTrain, bestPickup).rescheduleR
     }
   }
 
