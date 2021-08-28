@@ -23,7 +23,7 @@ case class Scheduler(trains: IndexedSeq[Train], unassigned: Set[Pickup] = Set.em
   }
 
   def reschedule: Scheduler = {
-    val allUnassigned = copy( trains = trains.map(_.copy(pickups = Set.empty)),
+    val allUnassigned = copy( trains = trains.map(_.copy(pickups = SortedSet.empty)),
                               unassigned = unassigned ++ trains.flatMap(_.pickups) )
     allUnassigned.rescheduleR
   }

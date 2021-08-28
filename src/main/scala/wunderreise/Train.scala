@@ -6,15 +6,27 @@ import scala.math._
 case class Train(position: Terminal, dropoffs: SortedSet[Terminal], pickups: Set[Pickup], time: Time = 0 ) {
 
   lazy val direction: Direction = if(isIdle) Idle else {
-    val left  = dropoffs.rangeUntil(position) ++
-                pickups.collect{ case from->to if from < position && to >= from => from } ++
-                pickups.collect{ case from->to if from < position && to <  from => to }
-    val right = dropoffs.rangeFrom(position) ++
-                pickups.collect{ case from->to if from >= position && to < from => from } ++
-                pickups.collect{ case from->to if from >= position && to>= from => to }
-    if(left.isEmpty) Right
-    else if( right.isEmpty) Left
-    else if( abs(left.min-position) < abs(right.max-position) ) Left
+    val (togoRight, togoLeft) = ( pickups ++ dropoffs.map((position,_)) )
+                                .partition{ case from->to => to > from }
+
+    val combinedRight = togoRight.foldLeft(SortedSet.empty[Pickup])
+    { case (acc, nFrom->nTo) => acc.lastOption match {
+      case Some(pFrom->pTo) if (pFrom to pTo).contains(nFrom) => acc - acc.last + (pFrom->max(pTo, nTo))
+      case _ => acc + (nFrom->nTo)
+    } }
+    val combinedLeft = togoLeft.foldRight(SortedSet.empty[Pickup])
+    { case (nFrom->nTo, acc) => acc.headOption match {
+      case Some(pFrom->pTo) if (pTo to pFrom).contains(nFrom) => acc - acc.head + (pFrom->min(pTo, nTo))
+      case _ => acc + (nFrom->nTo)
+    } }
+
+    val leftStops  = combinedRight.collect{ case from->to if from <  position => from } ++
+                     combinedLeft.collect { case from->to if from <= position => to }
+    val rightStops = combinedRight.collect{ case from->to if from >= position => to } ++
+                     combinedLeft.collect { case from->to if from >  position => from }
+
+    if (leftStops.isEmpty) Right else if(rightStops.isEmpty) Left
+    else if( abs(leftStops.min-position) < abs(rightStops.max-position) ) Left
     else Right
   }
 
@@ -41,5 +53,5 @@ case class Train(position: Terminal, dropoffs: SortedSet[Terminal], pickups: Set
 }
 
 object Train {
-  def apply(pos: Terminal): Train = Train(pos, SortedSet.empty[Int], Set.empty )
+  def apply(pos: Terminal): Train = Train(pos, SortedSet.empty[Int], SortedSet.empty  )
 }
