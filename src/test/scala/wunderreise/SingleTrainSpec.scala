@@ -43,7 +43,7 @@ class SingleTrainSpec extends AnyFunSpec with Matchers with ScalaCheckPropertyCh
   describe("with some particular requests") {
     it("starting at 4 serves 6->7,5->4") {
       route(Train(4).assign(6, 7).assign(5, 4)) shouldEqual
-        List(4, 5, 6, 7, 6, 5, 4)
+        List(4, 5, 4, 5, 6, 7)
     }
 
     it("starting at 10 serves 11->12,7->9") {

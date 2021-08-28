@@ -1,19 +1,26 @@
 package wunderreise
 
 import scala.collection.immutable._
-
-
+import scala.math._
 
 case class Train(position: Terminal, dropoffs: SortedSet[Terminal], pickups: Set[Pickup], time: Time = 0 ) {
-  val direction: Direction = dropoffs.ordering.compare(1, -1).sign
 
-  val ahead: SortedSet[Terminal] = (dropoffs ++ pickups.map(_._1)).rangeFrom(position)
+  lazy val direction: Direction = if(isIdle) Idle else {
+    val left  = dropoffs.rangeUntil(position) ++
+                pickups.collect{ case (from,to) if from < position && to >= from => from } ++
+                pickups.collect{ case (from,to) if from < position && to <  from => to }
+    val right = dropoffs.rangeFrom(position) ++
+                pickups.collect{ case (from, to) if from >= position && to < from => from } ++
+                pickups.collect{ case (from, to) if from >= position && to>= from => to }
+    if(left.isEmpty) Right
+    else if( right.isEmpty) Left
+    else if( abs(left.min-position) < abs(right.max-position) ) Left
+    else Right
+  }
 
   def assign(pickup: Pickup): Train = copy(pickups = pickups + pickup)
 
   val isIdle: Boolean = dropoffs.isEmpty && pickups.isEmpty
-
-  def turn: Train = copy(dropoffs = SortedSet.empty(dropoffs.ordering.reverse) ++ dropoffs)
 
   def board: Train = {
     val(boarding,remaining) = pickups.partition(_._1 == position)
@@ -21,8 +28,7 @@ case class Train(position: Terminal, dropoffs: SortedSet[Terminal], pickups: Set
   }
 
   def move: Train = if(isIdle) copy(time = time + 1)
-                    else if (ahead.nonEmpty) copy(position = position + direction, time = time +1)
-                    else turn.next
+                    else copy(position = position + direction, time = time +1)
 
   def next: Train = board.move
 
