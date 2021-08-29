@@ -35,10 +35,12 @@ case class Train(position: Terminal, dropoffs: SortedSet[Terminal], pickups: Set
 
   val isIdle: Boolean = dropoffs.isEmpty && pickups.isEmpty
 
+
+  val boarding: Set[Pickup] = pickups.filter(_._1 == position)
+
   private
   def board: Train = {
-    val(boarding,remaining) = pickups.partition(_._1 == position)
-    copy(dropoffs = dropoffs ++ boarding.map(_._2) - position, pickups = remaining )
+    copy(dropoffs = dropoffs ++ boarding.map(_._2) - position, pickups = pickups -- boarding )
   }
 
   private
