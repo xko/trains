@@ -27,9 +27,9 @@ class SchedulerSpec extends AnyFunSpec with Matchers with ScalaCheckPropertyChec
       val s = Scheduler(Train(2),Train(10),Train(21)).pickup(2->4).pickup(3->0).pickup(5->2)
                                                      .pickup(13->11).pickup(12->8).pickup(9->10)
                                                      .pickup(20->21).pickup(26->20).pickup(19->20)
-      routes(s) shouldEqual List( List( 2, 3, 4, 5, 4, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0),
-                                  List(10, 9,10,11,12,13,12,11,10, 9, 8, 8, 8, 8, 8),
-                                  List(21,22,23,24,25,26,25,24,23,22,21,20,19,20,21) )
+      routes(s) shouldEqual List( List( 2, 3, 4, 5, 4, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0),
+                                  List(10, 9,10,11,12,13,12,11,10, 9, 8, 8, 8, 8, 8, 8),
+                                  List(21,20,19,20,21,22,23,24,25,26,25,24,23,22,21,20) )
     }
   }
 
