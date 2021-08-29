@@ -26,12 +26,12 @@ class SingleTrainSpec extends AnyFunSpec with Matchers with ScalaCheckPropertyCh
   describe("with one request") {
     it("comes to pickup") {
       forAll(trains, terminals , terminals){ (tr, from, to) =>
-        tr.assign((from, to)).whenDoneOrAt(from).position shouldBe from
+        tr.assign(from->to).whenDoneOrAt(from).position shouldBe from
       }
     }
     it("comes to drop-off after pickup") {
       forAll(trains, terminals , terminals){ (tr, from, to) =>
-        val atStart = tr.assign((from, to))
+        val atStart = tr.assign(from->to)
         val atPickup = atStart.whenDoneOrAt(from)
         val atDropOff = atPickup.whenDoneOrAt(to)
         atDropOff.position shouldBe to
@@ -42,17 +42,17 @@ class SingleTrainSpec extends AnyFunSpec with Matchers with ScalaCheckPropertyCh
 
   describe("with some particular requests") {
     it("starting at 4 serves 6->7,5->4") {
-      route(Train(4).assign(6, 7).assign(5, 4)) shouldEqual
+      route(Train(4).assign(6->7).assign(5->4)) shouldEqual
         List(4, 5, 4, 5, 6, 7)
     }
 
     it("starting at 10 serves 11->12,7->9") {
-      route(Train(10).assign(11, 12).assign(7, 9)) shouldEqual
+      route(Train(10).assign(11->12).assign(7->9)) shouldEqual
         List(10, 11, 12, 11, 10, 9, 8, 7, 8, 9)
     }
 
     it("starting at 10 serves 13->20,12->8") {
-      route(Train(10).assign(13, 20).assign(12, 8)) shouldEqual
+      route(Train(10).assign(13->20).assign(12->8)) shouldEqual
         List(10, 11, 12, 11, 10, 9, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20)
     }
   }

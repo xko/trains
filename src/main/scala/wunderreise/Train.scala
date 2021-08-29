@@ -7,11 +7,11 @@ case class Train(position: Terminal, dropoffs: SortedSet[Terminal], pickups: Set
 
   lazy val direction: Direction = if(isIdle) Idle else {
     val left  = dropoffs.rangeUntil(position) ++
-                pickups.collect{ case (from,to) if from < position && to >= from => from } ++
-                pickups.collect{ case (from,to) if from < position && to <  from => to }
+                pickups.collect{ case from->to if from < position && to >= from => from } ++
+                pickups.collect{ case from->to if from < position && to <  from => to }
     val right = dropoffs.rangeFrom(position) ++
-                pickups.collect{ case (from, to) if from >= position && to < from => from } ++
-                pickups.collect{ case (from, to) if from >= position && to>= from => to }
+                pickups.collect{ case from->to if from >= position && to < from => from } ++
+                pickups.collect{ case from->to if from >= position && to>= from => to }
     if(left.isEmpty) Right
     else if( right.isEmpty) Left
     else if( abs(left.min-position) < abs(right.max-position) ) Left
