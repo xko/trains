@@ -7,25 +7,21 @@ import scala.collection.immutable._
 case class Scheduler(trains: IndexedSeq[Train], unassigned: Set[Pickup] = Set.empty) {
   def pickup(p:Pickup):Scheduler = copy(unassigned = unassigned + p)
 
-  type PickupEstimate = (Pickup,Train,Time)
-
-  def bestEstimate(p:Pickup): PickupEstimate = trains.map( t => (p, t, t.assign(p).whenDone.time) )
-                                                     .minBy(_._3)
-  private
-  def assign(t:Train, p: Pickup) = copy( trains  = trains.updated(trains.indexOf(t), t.assign(p)),
-                                         unassigned = unassigned - p )
-  @tailrec private
-  def rescheduleR:Scheduler = {
-    if(unassigned.isEmpty) this else {
-      val (bestPickup, bestTrain, _) = unassigned.map(bestEstimate).minBy(_._3)
-      assign(bestTrain, bestPickup).rescheduleR
-    }
-  }
-
   def reschedule: Scheduler = {
-    val allUnassigned = copy( trains = trains.map(_.copy(pickups = SortedSet.empty)),
-                              unassigned = unassigned ++ trains.flatMap(_.pickups) )
-    allUnassigned.rescheduleR
+    type PickupEstimate = (Pickup,Train,Time)
+    def bestEstimate(trains: Seq[Train])(p:Pickup): PickupEstimate =
+      trains.map( t => (p, t, t.assign(p).whenDone.time) ).minBy(_._3)
+
+    @tailrec
+    def reassign(trains: IndexedSeq[Train], pickups: Set[Pickup]): IndexedSeq[Train] =
+      if (pickups.isEmpty) trains else {
+        val (bestPickup, bestTrain, _) = pickups.map(bestEstimate(trains)).minBy(_._3)
+        reassign( trains.updated(trains.indexOf(bestTrain), bestTrain.assign(bestPickup)),
+                  pickups - bestPickup )
+      }
+
+    Scheduler(reassign( trains.map(_.copy(pickups = SortedSet.empty)),
+                        unassigned ++ trains.flatMap(_.pickups) ))
   }
 
   def moveTrains: Scheduler = copy(trains = trains.map(_.next))
