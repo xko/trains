@@ -1,5 +1,6 @@
 package wunderreise
 
+import scala.annotation.tailrec
 import scala.collection.immutable._
 import scala.math._
 
@@ -46,10 +47,13 @@ case class Train(position: Terminal, dropoffs: SortedSet[Terminal], pickups: Set
 
   def next: Train = board.move
 
+  @tailrec final
   def after(steps:Int):Train = if(steps == 0) this else next.after(steps -1)
 
+  @tailrec final
   def whenDoneOrAt(t: Terminal):Train = if(isIdle || position == t) this else next.whenDoneOrAt(t)
 
+  @tailrec final
   def whenDone: Train = if(isIdle) this else next.whenDone
 
 }
