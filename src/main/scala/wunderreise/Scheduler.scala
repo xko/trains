@@ -7,6 +7,7 @@ import scala.collection.immutable._
 case class Scheduler(trains: IndexedSeq[Train], unassigned: Set[Pickup] = Set.empty) {
   def pickup(p:Pickup):Scheduler = copy(unassigned = unassigned + p)
 
+  private
   def reschedule: Scheduler = {
     type PickupEstimate = (Pickup,Train,Time)
     def bestEstimate(trains: Seq[Train])(p:Pickup): PickupEstimate =
@@ -24,6 +25,7 @@ case class Scheduler(trains: IndexedSeq[Train], unassigned: Set[Pickup] = Set.em
                         unassigned ++ trains.flatMap(_.pickups) ))
   }
 
+  private
   def moveTrains: Scheduler = copy(trains = trains.map(_.next))
 
   def next: Scheduler = reschedule.moveTrains

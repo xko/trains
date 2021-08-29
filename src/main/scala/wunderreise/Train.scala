@@ -34,11 +34,13 @@ case class Train(position: Terminal, dropoffs: SortedSet[Terminal], pickups: Set
 
   val isIdle: Boolean = dropoffs.isEmpty && pickups.isEmpty
 
+  private
   def board: Train = {
     val(boarding,remaining) = pickups.partition(_._1 == position)
     copy(dropoffs = dropoffs ++ boarding.map(_._2) - position, pickups = remaining )
   }
 
+  private
   def move: Train = if(isIdle) copy(time = time + 1)
                     else copy(position = position + direction, time = time +1)
 
