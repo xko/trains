@@ -5,7 +5,7 @@ import scala.collection.immutable._
 
 
 case class Scheduler(trains: IndexedSeq[Train], unassigned: Set[Pickup] = Set.empty) {
-  def pickup(p:Pickup):Scheduler = copy(unassigned = unassigned + p)
+  def pickup(pickups:Pickup*):Scheduler = copy(unassigned = unassigned ++ pickups).reschedule
 
   private
   def reschedule: Scheduler = {
@@ -28,7 +28,7 @@ case class Scheduler(trains: IndexedSeq[Train], unassigned: Set[Pickup] = Set.em
   private
   def moveTrains: Scheduler = copy(trains = trains.map(_.next))
 
-  def next: Scheduler = reschedule.moveTrains
+  def next: Scheduler = moveTrains
 
   def isIdle: Boolean = trains.forall(_.isIdle) && unassigned.isEmpty
 
