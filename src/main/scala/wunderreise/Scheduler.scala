@@ -36,6 +36,7 @@ case class Scheduler(trains: IndexedSeq[Train], unassigned: Set[Pickup] = Set.em
 
   def isIdle: Boolean = trains.forall(_.isIdle) && unassigned.isEmpty
 
+  @tailrec final
   def whenDone:Scheduler = if(isIdle) this else next.whenDone
 
 }
