@@ -1,8 +1,11 @@
 package wunderreise
 
+import org.scalacheck.Gen
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+
+import scala.collection.immutable.SortedSet
 
 class SchedulerSpec extends AnyFunSpec with Matchers with ScalaCheckPropertyChecks with TestUtil {
   describe("with random trains and requests"){
@@ -42,6 +45,18 @@ class SchedulerSpec extends AnyFunSpec with Matchers with ScalaCheckPropertyChec
       } }
     }
 
+    describe("with pickups requested in the process") {
+      it("is eventually done") {
+        forAll( listOfN(32, trains), listOf(choose(0, 20)), listOf(listOfN(17,pickups)) ) { (trains, stops, pickups) =>
+          whenever(trains.nonEmpty) {
+            val booked = stops.sorted.zip(pickups).foldLeft( Scheduler(trains: _*) ){ case (sch, stop->pickups) =>
+              sch.after(stop).pickup(pickups:_*)
+            }
+            noException should be thrownBy booked.whenDone
+          }
+        }
+      }
+    }
   }
 
   describe("with particular trains/requests"){

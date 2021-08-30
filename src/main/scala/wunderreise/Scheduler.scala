@@ -30,6 +30,10 @@ case class Scheduler(trains: IndexedSeq[Train], unassigned: Set[Pickup] = Set.em
 
   def next: Scheduler = moveTrains
 
+  @tailrec final
+  def after(steps:Int):Scheduler = if(steps == 0) this else next.after(steps -1)
+
+
   def isIdle: Boolean = trains.forall(_.isIdle) && unassigned.isEmpty
 
   def whenDone:Scheduler = if(isIdle) this else next.whenDone
