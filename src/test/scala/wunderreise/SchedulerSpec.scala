@@ -27,6 +27,20 @@ class SchedulerSpec extends AnyFunSpec with Matchers with ScalaCheckPropertyChec
       } }
     }
 
+    def allDelivered(booked: Scheduler) = for {
+      state -> step <- Iterator.iterate(booked)(_.next).takeWhile(!_.isIdle).zipWithIndex
+      fromStep -> (from -> to) <- allBoarded(booked)
+      train <- state.trains
+      delivered = from -> to if train.position == to && fromStep <= step
+    } yield delivered
+
+    it("delivers all boarded") {
+      forAll(Gen.listOfN(32, trains), Gen.listOf(pickups)) { (trains, pickups) => whenever(trains.nonEmpty) {
+          val booked = Scheduler(trains: _*).pickup(pickups: _*)
+          allDelivered(booked).toSet shouldEqual pickups.toSet
+      } }
+    }
+
   }
 
   describe("with particular trains/requests"){
