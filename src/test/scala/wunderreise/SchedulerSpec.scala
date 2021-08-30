@@ -1,14 +1,15 @@
 package wunderreise
 
-import org.scalacheck.Gen
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 class SchedulerSpec extends AnyFunSpec with Matchers with ScalaCheckPropertyChecks with TestUtil {
   describe("with random trains and requests"){
+    import org.scalacheck.Gen._
+
     it("is eventually done"){
-      forAll(Gen.nonEmptyListOf(trains), Gen.listOf(pickups)){ (trains,pickups) =>
+      forAll(nonEmptyListOf(trains), listOf(pickups)){ (trains, pickups) =>
         val booked = Scheduler(trains:_*).pickup(pickups:_*)
         noException should be thrownBy booked.whenDone
       }
@@ -21,7 +22,7 @@ class SchedulerSpec extends AnyFunSpec with Matchers with ScalaCheckPropertyChec
     } yield step->boarding
 
     it("boards all requested"){
-      forAll(Gen.listOfN(32,trains), Gen.listOf(pickups)){ (trains,pickups) => whenever(trains.nonEmpty) {
+      forAll(listOfN(32, trains), listOf(pickups)){ (trains, pickups) => whenever(trains.nonEmpty) {
         val booked = Scheduler(trains:_*).pickup(pickups:_*)
         allBoarded(booked).map(_._2).toSet shouldEqual pickups.toSet
       } }
@@ -35,7 +36,7 @@ class SchedulerSpec extends AnyFunSpec with Matchers with ScalaCheckPropertyChec
     } yield delivered
 
     it("delivers all boarded") {
-      forAll(Gen.listOfN(32, trains), Gen.listOf(pickups)) { (trains, pickups) => whenever(trains.nonEmpty) {
+      forAll(listOfN(32, trains), listOf(pickups)) { (trains, pickups) => whenever(trains.nonEmpty) {
           val booked = Scheduler(trains: _*).pickup(pickups: _*)
           allDelivered(booked).toSet shouldEqual pickups.toSet
       } }
