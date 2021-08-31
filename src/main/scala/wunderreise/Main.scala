@@ -20,10 +20,10 @@ package wunderreise
           println(next.trains.map(t => "%3d %1s ".format(t.position,dirSymbol(t.direction))).mkString("|"))
           next
         }
+      } else {
         println("Please provide starting positions for the trains as parameters.\n" +
                 "Nothing else is accepted")
         System.exit(1)
-
       }
 
 
