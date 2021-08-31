@@ -5,6 +5,8 @@ import scala.collection.immutable._
 
 
 case class Scheduler private(trains: IndexedSeq[Train], unassigned: Set[Pickup]) {
+  require(trains.nonEmpty)
+
   def pickup(pickups:Pickup*):Scheduler = copy(unassigned = unassigned ++ pickups).reschedule
 
   private

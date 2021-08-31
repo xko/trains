@@ -8,6 +8,10 @@ import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import scala.collection.immutable.SortedSet
 
 class SchedulerSpec extends AnyFunSpec with Matchers with ScalaCheckPropertyChecks with TestUtil {
+  it("does not accept empty trains") {
+    an [IllegalArgumentException] should be thrownBy Scheduler()
+  }
+
   describe("with random trains and requests"){
     import org.scalacheck.Gen._
 
