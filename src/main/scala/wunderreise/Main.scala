@@ -19,13 +19,15 @@ object Main {
       if( args.length>0 && args.forall(_.forall(_.isDigit)))  {
         val trains = args.map(_.toInt).map(Train.apply).toIndexedSeq
         val pair = """(\d+)\s+(\d+)""".r
-        stdin.getLines().foldLeft(tap(Scheduler(trains:_*))) { (sch, input) =>
+        val booked = stdin.getLines().foldLeft( tap(Scheduler(trains:_*)) ) { (sch, input) =>
           tap( if (input.isEmpty) sch.next else {
-            val pickups = input.split("[;,]").map(_.trim).toIndexedSeq
-                               .map { case pair(from, to) => from.toInt -> to.toInt }
+            val pickups = input.split("[;,]").map(_.trim).toIndexedSeq.map {
+              case pair(from, to) => from.toInt -> to.toInt
+            }
             sch.pickup(pickups: _*).next
-          })
+          } )
         }
+        Iterator.iterate(booked)(_.next).takeWhile(!_.isIdle).foreach(tap)
       } else {
         println("Please provide starting positions for the trains as parameters.\n" +
                 "Nothing else is accepted")
