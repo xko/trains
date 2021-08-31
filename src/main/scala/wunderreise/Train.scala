@@ -4,7 +4,7 @@ import scala.annotation.tailrec
 import scala.collection.immutable._
 import scala.math._
 
-case class Train(position: Terminal, dropoffs: SortedSet[Terminal], pickups: Set[Pickup], time: Time = 0 ) {
+case class Train private (position: Terminal, dropoffs: SortedSet[Terminal], pickups: Set[Pickup], time: Time ) {
 
   lazy val direction: Direction = if(isIdle) Idle else {
     val (togoRight, togoLeft) = pickups.partition{ case from->to => to > from }
@@ -62,5 +62,5 @@ case class Train(position: Terminal, dropoffs: SortedSet[Terminal], pickups: Set
 }
 
 object Train {
-  def apply(pos: Terminal): Train = Train(pos, SortedSet.empty[Int], SortedSet.empty  )
+  def apply(pos: Terminal): Train = Train(pos, SortedSet.empty[Int], SortedSet.empty , 0 )
 }
