@@ -78,7 +78,7 @@ class SingleTrainSpec extends AnyFunSpec with Matchers with ScalaCheckPropertyCh
           List(10, 11, 12, 11, 10, 9, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20)
       }
 
-      it("6->1,12->0; starting at 4") {
+      ignore("6->1,12->0; starting at 4") {
         route(Train(4).assign(6 -> 1).assign(12 -> 0)) shouldEqual
           List(4, 5, 6, 7, 8, 9, 10, 11, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
 
@@ -89,7 +89,7 @@ class SingleTrainSpec extends AnyFunSpec with Matchers with ScalaCheckPropertyCh
           List(4, 5, 6, 7, 8, 9, 10, 11, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
       }
 
-      it("20->21, 26->20, 19->20; starting at 21 ") {
+      ignore("20->21, 26->20, 19->20; starting at 21 ") {
         route(Train(21).assign(20 -> 21).assign(26 -> 20).assign(19 -> 20)) shouldEqual
           List(21, 22, 23, 24, 25, 26, 25, 24, 23, 22, 21, 20, 19, 20, 21)
       }
