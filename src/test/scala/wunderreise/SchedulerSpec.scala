@@ -12,10 +12,10 @@ class SchedulerSpec extends AnyFunSpec with Matchers with ScalaCheckPropertyChec
     import org.scalacheck.Gen._
 
     it("is eventually done"){
-      forAll(nonEmptyListOf(trains), listOf(pickups)){ (trains, pickups) =>
+      forAll(listOfN(32,trains), listOf(pickups)){ (trains, pickups) => whenever(trains.nonEmpty) {
         val booked = Scheduler(trains:_*).pickup(pickups:_*)
         noException should be thrownBy booked.whenDone
-      }
+      } }
     }
 
     def allBoarded(booked: Scheduler) = for {
@@ -47,7 +47,7 @@ class SchedulerSpec extends AnyFunSpec with Matchers with ScalaCheckPropertyChec
 
     describe("with pickups requested in the process") {
       it("is eventually done") {
-        forAll( listOfN(32, trains), listOf(choose(0, 20)), listOf(listOfN(17,pickups)) ) { (trains, stops, pickups) =>
+        forAll( listOfN(32, trains), listOf(choose(0, 20)), listOf(listOfN(7,pickups)) ) { (trains, stops, pickups) =>
           whenever(trains.nonEmpty) {
             val booked = stops.sorted.zip(pickups).foldLeft( Scheduler(trains: _*) ){ case (sch, stop->pickups) =>
               sch.after(stop).pickup(pickups:_*)
