@@ -7,8 +7,7 @@ import scala.math._
 case class Train(position: Terminal, dropoffs: SortedSet[Terminal], pickups: Set[Pickup], time: Time = 0 ) {
 
   lazy val direction: Direction = if(isIdle) Idle else {
-    val (togoRight, togoLeft) = ( pickups ++ dropoffs.map((position,_)) )
-                                .partition{ case from->to => to > from }
+    val (togoRight, togoLeft) = pickups.partition{ case from->to => to > from }
 
     val combinedRight = togoRight.foldLeft(SortedSet.empty[Pickup])
     { case (acc, nFrom->nTo) => acc.lastOption match {
@@ -22,9 +21,11 @@ case class Train(position: Terminal, dropoffs: SortedSet[Terminal], pickups: Set
     } }
 
     val leftStops  = combinedRight.collect{ case from->to if from <  position => from } ++
-                     combinedLeft.collect { case from->to if from <= position => to }
+                     combinedLeft.collect { case from->to if from <= position => to } ++
+                     dropoffs.rangeUntil(position)
     val rightStops = combinedRight.collect{ case from->to if from >= position => to } ++
-                     combinedLeft.collect { case from->to if from >  position => from }
+                     combinedLeft.collect { case from->to if from >  position => from } ++
+                     dropoffs.rangeFrom(position)
 
     if (leftStops.isEmpty) Right else if(rightStops.isEmpty) Left
     else if( abs(leftStops.min-position) < abs(rightStops.max-position) ) Left

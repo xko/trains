@@ -1,12 +1,22 @@
 package wunderreise
 
 import org.scalacheck.Gen
+import org.scalatest.concurrent.{Signaler, TimeLimitedTests}
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.time.Span
+import org.scalatest.time.SpanSugar._
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 
-class SingleTrainSpec extends AnyFunSpec with Matchers with ScalaCheckPropertyChecks with TestUtil {
+class SingleTrainSpec extends AnyFunSpec with Matchers with ScalaCheckPropertyChecks
+  with TimeLimitedTests with TestUtil {
+
+  override def timeLimit: Span = 5.seconds
+  //noinspection ScalaDeprecation
+  override val defaultTestSignaler: Signaler = (testThread: Thread) => testThread.stop()
+
+
 
   describe("without requests") {
     it("does not move") {
@@ -41,6 +51,14 @@ class SingleTrainSpec extends AnyFunSpec with Matchers with ScalaCheckPropertyCh
   }
 
   describe("with some particular requests ") {
+    it("does not loop endlessly"){
+      val t = Train(16).assign(16 -> 7).assign(16 -> 8).assign(16,17)
+              .next.next
+              .assign(12->10).assign(12->13).assign(22->16)
+      noException should be thrownBy t.whenDone
+    }
+
+
     describe("serves optimally") {
       it("6->7, 5->4; starting at 4") {
         route(Train(4).assign(6 -> 7).assign(5 -> 4)) shouldEqual
