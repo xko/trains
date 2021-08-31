@@ -8,12 +8,15 @@ import org.scalatest.time.Span
 import org.scalatest.time.SpanSugar._
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
+import scala.annotation.nowarn
+
 
 class SingleTrainSpec extends AnyFunSpec with Matchers with ScalaCheckPropertyChecks
   with TimeLimitedTests with TestUtil {
 
   override def timeLimit: Span = 5.seconds
   //noinspection ScalaDeprecation
+  @nowarn
   override val defaultTestSignaler: Signaler = (testThread: Thread) => testThread.stop()
 
 
