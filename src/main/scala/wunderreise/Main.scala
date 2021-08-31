@@ -11,7 +11,7 @@ package wunderreise
       if( args.length>0 && args.forall(_.forall(_.isDigit)))  {
         val trains = args.map(_.toInt).map(Train.apply).toIndexedSeq
         val pair = """(\d+)\s+(\d+)""".r
-        io.Source.stdin.getLines().foldLeft(Scheduler(trains)) { (sch, input) =>
+        io.Source.stdin.getLines().foldLeft(Scheduler(trains:_*)) { (sch, input) =>
           val next =  if (input.isEmpty) sch.next else {
             val pickups = input.split("[;,]").map(_.trim).map { case pair(from, to) => from.toInt -> to.toInt }
             sch.pickup(pickups: _*).next

@@ -4,7 +4,7 @@ import scala.collection.immutable._
 
 
 
-case class Scheduler(trains: IndexedSeq[Train], unassigned: Set[Pickup] = Set.empty) {
+case class Scheduler private(trains: IndexedSeq[Train], unassigned: Set[Pickup]) {
   def pickup(pickups:Pickup*):Scheduler = copy(unassigned = unassigned ++ pickups).reschedule
 
   private
@@ -21,8 +21,9 @@ case class Scheduler(trains: IndexedSeq[Train], unassigned: Set[Pickup] = Set.em
                   pickups - bestPickup )
       }
 
-    Scheduler(reassign( trains.map(_.copy(pickups = SortedSet.empty)),
-                        unassigned ++ trains.flatMap(_.pickups) ))
+    copy( reassign( trains.map(_.copy(pickups = SortedSet.empty)),
+                    unassigned ++ trains.flatMap(_.pickups)  ),
+          SortedSet.empty )
   }
 
   private
@@ -42,5 +43,5 @@ case class Scheduler(trains: IndexedSeq[Train], unassigned: Set[Pickup] = Set.em
 }
 
 object Scheduler {
-  def apply(trains:Train*):Scheduler = apply(trains.toIndexedSeq)
+  def apply(trains:Train*):Scheduler = apply(trains.toIndexedSeq, SortedSet.empty[Pickup])
 }
