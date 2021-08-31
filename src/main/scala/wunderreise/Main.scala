@@ -1,6 +1,8 @@
 package wunderreise
 
-  object Main {
+import scala.io.Source.stdin
+
+object Main {
 
     def dirSymbol(dir:Direction): String = dir match {
       case Right => ">"
@@ -17,7 +19,7 @@ package wunderreise
       if( args.length>0 && args.forall(_.forall(_.isDigit)))  {
         val trains = args.map(_.toInt).map(Train.apply).toIndexedSeq
         val pair = """(\d+)\s+(\d+)""".r
-        io.Source.stdin.getLines().foldLeft(tap(Scheduler(trains:_*))) { (sch, input) =>
+        stdin.getLines().foldLeft(tap(Scheduler(trains:_*))) { (sch, input) =>
           tap( if (input.isEmpty) sch.next else {
             val pickups = input.split("[;,]").map(_.trim).toIndexedSeq
                                .map { case pair(from, to) => from.toInt -> to.toInt }
