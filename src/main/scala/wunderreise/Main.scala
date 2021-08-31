@@ -13,7 +13,8 @@ package wunderreise
         val pair = """(\d+)\s+(\d+)""".r
         io.Source.stdin.getLines().foldLeft(Scheduler(trains:_*)) { (sch, input) =>
           val next =  if (input.isEmpty) sch.next else {
-            val pickups = input.split("[;,]").map(_.trim).map { case pair(from, to) => from.toInt -> to.toInt }
+            val pickups = input.split("[;,]").map(_.trim).toIndexedSeq
+                               .map { case pair(from, to) => from.toInt -> to.toInt }
             sch.pickup(pickups: _*).next
           }
           println(next.trains.map(t => "%3d %1s ".format(t.position,dirSymbol(t.direction))).mkString("|"))
