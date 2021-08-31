@@ -29,8 +29,8 @@ object Main {
         }
         Iterator.iterate(booked)(_.next).takeWhile(!_.isIdle).foreach(tap)
       } else {
-        println("Please provide starting positions for the trains as parameters.\n" +
-                "Nothing else is accepted")
+        System.err.println("Please provide starting positions for the trains as parameters.\n" +
+                           "Nothing else is accepted")
         System.exit(1)
       }
 
